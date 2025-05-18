@@ -419,13 +419,13 @@ void AuthSession::LogonChallengeCallback(PreparedQueryResult result)
         pkt << uint8(WOW_FAIL_VERSION_INVALID);
 
     // B may be calculated < 32B so we force minimal length to 32B
-    pkt.append(B.ToByteArray(32).get(), 32);      // 32 bytes
+    pkt.append(B.ToByteArray(32).data(), 32);      // 32 bytes
     pkt << uint8(1);
-    pkt.append(g.ToByteArray(1).get(), 1);
+    pkt.append(g.ToByteArray(1).data(), 1);
     pkt << uint8(32);
-    pkt.append(N.ToByteArray(32).get(), 32);
+    pkt.append(N.ToByteArray(32).data(), 32);
     pkt.append(s.ToByteArray(int32(BufferSizes::SRP_6_S)).get(), size_t(BufferSizes::SRP_6_S));   // 32 bytes
-    pkt.append(unk3.ToByteArray(16).get(), 16);
+    pkt.append(unk3.ToByteArray(16).data(), 16);
     uint8 securityFlags = 0;
 
     // Check if token is used
@@ -495,7 +495,7 @@ bool AuthSession::HandleLogonProof()
     uint8 t[32];
     uint8 t1[16];
     uint8 vK[40];
-    memcpy(t, S.ToByteArray(32).get(), 32);
+    memcpy(t, S.ToByteArray(32).data(), 32);
 
     for (int i = 0; i < 16; ++i)
         t1[i] = t[i * 2];
@@ -550,7 +550,7 @@ bool AuthSession::HandleLogonProof()
     M.SetBinary(sha.GetDigest(), sha.GetLength());
 
     // Check if SRP6 results match (password is correct), else send an error
-    if (!memcmp(M.ToByteArray(sha.GetLength()).get(), logonProof->M1, 20))
+    if (!memcmp(M.ToByteArray(sha.GetLength()).data(), logonProof->M1, 20))
     {
         // Check auth token
         if ((logonProof->securityFlags & 0x04) || !_tokenKey.empty())
@@ -737,7 +737,7 @@ void AuthSession::ReconnectChallengeCallback(PreparedQueryResult result)
     _status = STATUS_RECONNECT_PROOF;
 
     pkt << uint8(WOW_SUCCESS);
-    pkt.append(_reconnectProof.ToByteArray(16).get(), 16);  // 16 bytes random
+    pkt.append(_reconnectProof.ToByteArray(16).data(), 16);  // 16 bytes random
     pkt << uint64(0x00) << uint64(0x00);                    // 16 bytes zeros
 
     SendPacket(pkt);
@@ -903,12 +903,12 @@ void AuthSession::SetVSFields(const std::string& rI)
 
     // In case of leading zeros in the rI hash, restore them
     uint8 mDigest[SHA_DIGEST_LENGTH];
-    memcpy(mDigest, I.ToByteArray(SHA_DIGEST_LENGTH).get(), SHA_DIGEST_LENGTH);
+    memcpy(mDigest, I.ToByteArray(SHA_DIGEST_LENGTH).data(), SHA_DIGEST_LENGTH);
 
     std::reverse(mDigest, mDigest + SHA_DIGEST_LENGTH);
 
     SHA1Hash sha;
-    sha.UpdateData(s.ToByteArray(uint32(BufferSizes::SRP_6_S)).get(), (uint32(BufferSizes::SRP_6_S)));
+    sha.UpdateData(s.ToByteArray(uint32(BufferSizes::SRP_6_S)).data(), (uint32(BufferSizes::SRP_6_S)));
     sha.UpdateData(mDigest, SHA_DIGEST_LENGTH);
     sha.Finalize();
     BigNumber x;
