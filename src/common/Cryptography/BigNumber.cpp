@@ -212,3 +212,17 @@ std::string BigNumber::AsDecStr() const
     OPENSSL_free(ch);
     return ret;
 }
+ByteArray BigNumber::ToByteArray(uint32_t size) const
+{
+    ByteArray ret;
+    size_t byteSize = BN_num_bytes(m_bn);
+
+    if (size && byteSize > size)
+        return ret;
+
+    ret.resize(size ? size : byteSize);
+    BN_bn2bin(m_bn, ret.data());
+
+    return ret;
+}
+
