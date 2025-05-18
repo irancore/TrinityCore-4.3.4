@@ -23,7 +23,7 @@
 #include <memory>
 #include <string>
 #include <vector>
-
+typedef std::vector<uint8_t> ByteArray;
 struct bignum_st;
 
 class TC_COMMON_API BigNumber
